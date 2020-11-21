@@ -1,5 +1,4 @@
 const { response } = require('express');
-
 const Hospital = require('../models/hospital');
 const getHospitales = async(req, resp = response) => {
     const hospitales = await Hospital.find()
@@ -34,20 +33,64 @@ const crearHospital = async(req, resp = response) => {
 
 };
 
-const actualizarHospital = (req, resp = response) => {
+const actualizarHospital = async(req, resp = response) => {
+    const id = req.params.id;
+    const uid = req.uid;
 
-    resp.json({
-        ok: true,
-        msg: 'actualizarHospital'
-    });
+    try {
+        const hospitalDB = await Hospital.findById(id);
+        if (!hospitalDB) {
+            return resp.status(404).json({
+                ok: true,
+                msg: 'Hospital no encontrado'
+            });
+
+        }
+        const cambioHospital = {
+            ...req.body,
+            usuario: uid
+        };
+        const hospitalActualizado = await Hospital.findByIdAndUpdate(id, cambioHospital, { new: true });
+        resp.json({
+            ok: true,
+            msg: 'actualizarHospital',
+            hospital: hospitalActualizado
+        });
+    } catch (error) {
+        console.log(error);
+        resp.status(500).json({
+            ok: false,
+            msg: 'Hable con el administrador'
+        });
+    }
+
 };
 
-const borrarHospital = (req, resp = response) => {
+const borrarHospital = async(req, resp = response) => {
 
-    resp.json({
-        ok: true,
-        msg: 'borrarHospital'
-    });
+    const id = req.params.id;
+    try {
+        const hospitalDB = await Hospital.findById(id);
+        if (!hospitalDB) {
+            return resp.status(404).json({
+                ok: true,
+                msg: 'Hospital no encontrado'
+            });
+
+        }
+        await Hospital.findByIdAndDelete(id);
+        resp.json({
+            ok: true,
+            msg: 'Hospital Borrado'
+        });
+    } catch (error) {
+        console.log(error);
+        resp.status(500).json({
+            ok: false,
+            msg: 'Hable con el administrador'
+        });
+    }
+
 };
 
 

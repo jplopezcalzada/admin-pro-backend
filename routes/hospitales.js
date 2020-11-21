@@ -6,7 +6,6 @@ const { check } = require('express-validator');
 const { Router } = require('express');
 const { validarCampos } = require('../middlewares/validar-campos');
 const {
-
     getHospitales,
     crearHospital,
     actualizarHospital,
@@ -23,9 +22,12 @@ router.post('/', [
     validarCampos
 ], crearHospital);
 
-router.put('/:id', [], actualizarHospital);
+router.put('/:id', [validarJWT,
+    check('nombre', 'El nombre del hospital es obligatorio').not().isEmpty(),
+    validarCampos
+], actualizarHospital);
 
-router.delete('/:id', borrarHospital);
+router.delete('/:id', validarJWT, borrarHospital);
 
 
 

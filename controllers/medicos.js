@@ -1,7 +1,6 @@
 const { response } = require('express');
 
 const Medico = require('../models/medico');
-const Hospital = require('../models/hospital');
 
 const getMedicos = async(req, resp = response) => {
     const medico = await Medico.find()
@@ -48,20 +47,63 @@ const crearMedico = async(req, resp = response) => {
 
 };
 
-const actualizarMedico = (req, resp = response) => {
+const actualizarMedico = async(req, resp = response) => {
+    const id = req.params.id;
+    const uid = req.uid;
 
-    resp.json({
-        ok: true,
-        msg: 'actualizarMedico'
-    });
+    try {
+        const medicoDB = await Medico.findById(id);
+        if (!medicoDB) {
+            return resp.status(404).json({
+                ok: true,
+                msg: 'Medico no encontrado'
+            });
+
+        }
+        const cambioMedico = {
+            ...req.body,
+            usuario: uid
+        };
+        const medicoActualizado = await Medico.findByIdAndUpdate(id, cambioMedico, { new: true });
+        resp.json({
+            ok: true,
+            msg: 'Medico actualizado',
+            medico: medicoActualizado
+        });
+    } catch (error) {
+        console.log(error);
+        resp.status(500).json({
+            ok: false,
+            msg: 'Hable con el administrador'
+        });
+    }
+
 };
 
-const borrarMedico = (req, resp = response) => {
+const borrarMedico = async(req, resp = response) => {
+    const id = req.params.id;
+    try {
+        const medicoDB = await Medico.findById(id);
+        if (!medicoDB) {
+            return resp.status(404).json({
+                ok: true,
+                msg: 'Medico no encontrado'
+            });
 
-    resp.json({
-        ok: true,
-        msg: 'borrarMedico'
-    });
+        }
+        await Medico.findByIdAndDelete(id);
+        resp.json({
+            ok: true,
+            msg: 'Medico Borrado'
+        });
+    } catch (error) {
+        console.log(error);
+        resp.status(500).json({
+            ok: false,
+            msg: 'Hable con el administrador'
+        });
+    }
+
 };
 
 
