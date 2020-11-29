@@ -50,7 +50,7 @@ const actualizarHospital = async(req, resp = response) => {
             ...req.body,
             usuario: uid
         };
-        const hospitalActualizado = await Hospital.findByIdAndUpdate(id, cambioHospital, { new: true });
+        const hospitalActualizado = await Hospital.findOneAndUpdate(id, cambioHospital, { new: true });
         resp.json({
             ok: true,
             msg: 'actualizarHospital',
